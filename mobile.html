@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Camera Node</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #121212;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 20px;
+        }
+        .setup-card, .stream-card {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background: #2a2a2a;
+            color: #fff;
+            font-size: 16px;
+        }
+        button {
+            background: #00ffcc;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        video {
+            width: 100%;
+            max-height: 70vh;
+            background: #000;
+            border-radius: 5px;
+            transform: scaleX(-1); /* Mirror effect */
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Setup Screen (Name aur Camera choice ke liye) -->
+    <div id="setupScreen" class="setup-card">
+        <h2>📱 Camera Setup</h2>
+        <p>Apna camera configuration chuniye:</p>
+        <input type="text" id="cameraName" placeholder="Camera Name (e.g., Camera 1)" required>
+        <select id="cameraFacing">
+            <option value="environment">Back Camera (Main)</option>
+            <option value="user">Front Camera (Selfie)</option>
+        </select>
+        <button onclick="startCamera()">Connect Camera</button>
+    </div>
+
+    <!-- Active Streaming Screen -->
+    <div id="streamScreen" class="stream-card hidden">
+        <h3 id="activeTitle">Streaming...</h3>
+        <video id="localVideo" autoplay playsinline muted></video>
+        <button onclick="switchCamera()" style="background: #ff4d4d; color: #fff;">Switch Camera</button>
+    </div>
+
+   <script>
+    let localStream;
+
+    async function startCamera() {
+        let camName = document.getElementById("cameraName").value;
+        let facingMode = document.getElementById("cameraFacing").value;
+
+        if(!camName) {
+            alert("Please enter a camera name!");
+            return;
+        }
+
+        // Fallback for non-secure contexts (HTTP over local IP)
+        if (navigator.mediaDevices === undefined) {
+            navigator.mediaDevices = {};
+        }
+
+        if (navigator.mediaDevices.getUserMedia === undefined) {
+            navigator.mediaDevices.getUserMedia = function(constraints) {
+                let getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                if (!getUserMedia) {
+                    return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+                }
+                return new Promise(function(resolve, reject) {
+                    getUserMedia.call(navigator, constraints, resolve, reject);
+                });
+            };
+        }
+
+        try {
+            const constraints = {
+                video: { facingMode: facingMode },
+                audio: false
+            };
+
+            localStream = await navigator.mediaDevices.getUserMedia(constraints);
+            
+            document.getElementById("localVideo").srcObject = localStream;
+            document.getElementById("setupScreen").classList.add("hidden");
+            document.getElementById("streamScreen").classList.remove("hidden");
+            document.getElementById("activeTitle").innerText = camName;
+
+        } catch (error) {
+            alert("Camera access denied or not supported: " + error.message);
+            console.error(error);
+        }
+    }
+</script>
+</body>
+</html>

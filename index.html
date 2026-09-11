@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Camera Event Switcher</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- QR Code Library CDN (Free to use) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Top Control Bar -->
+        <header>
+            <h1>🎥 Multi-Camera Live Switcher</h1>
+            <div class="controls">
+                <button id="recordBtn" class="btn red">Start Recording</button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Layout -->
+        <div class="main-layout">
+            
+            <!-- Left Side: 6 Camera Grid Boxes -->
+            <div class="camera-grid">
+                <div class="cam-box" onclick="selectCamera(1)">
+                    <video id="cam1" autoplay playsinline></video>
+                    <span class="cam-label">Camera 1 (Offline)</span>
+                </div>
+                <div class="cam-box" onclick="selectCamera(2)">
+                    <video id="cam2" autoplay playsinline></video>
+                    <span class="cam-label">Camera 2 (Offline)</span>
+                </div>
+                <div class="cam-box" onclick="selectCamera(3)">
+                    <video id="cam3" autoplay playsinline></video>
+                    <span class="cam-label">Camera 3 (Offline)</span>
+                </div>
+                <div class="cam-box" onclick="selectCamera(4)">
+                    <video id="cam4" autoplay playsinline></video>
+                    <span class="cam-label">Camera 4 (Offline)</span>
+                </div>
+                <div class="cam-box" onclick="selectCamera(5)">
+                    <video id="cam5" autoplay playsinline></video>
+                    <span class="cam-label">Camera 5 (Offline)</span>
+                </div>
+                <div class="cam-box" onclick="selectCamera(6)">
+                    <video id="cam6" autoplay playsinline></video>
+                    <span class="cam-label">Camera 6 (Offline)</span>
+                </div>
+            </div>
+
+            <!-- Center: Big Active View Screen -->
+            <div class="main-preview">
+                <h2>Live Program Output (PGM)</h2>
+                <div class="big-screen-container">
+                    <video id="mainOutput" autoplay playsinline controls></video>
+                </div>
+            </div>
+
+            <!-- Right Side: QR Code & Connection Info -->
+            <div class="sidebar-right">
+                <h3>Scan to Connect Camera</h3>
+                <div id="qrcode"></div>
+                <p id="connection-url">Waiting for link...</p>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
