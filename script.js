@@ -1,5 +1,5 @@
 let peer;
-let connectedCalls = {};
+let connectedPeersCount = 0;
 
 window.onload = function() {
     // GitHub page ka URL handle karna
@@ -12,12 +12,10 @@ window.onload = function() {
     }
 
     // PeerJS initialization for Computer (Master Dashboard)
-    // Ek unique random ID computer ke liye banegi
     peer = new Peer();
 
     peer.on('open', (id) => {
         console.log("Master Peer ID: " + id);
-        // QR code ke URL me computer ki Peer ID bhi bhejenge taaki mobile ko pata chale kisse connect hona hai
         let finalQRUrl = mobileUrl + "?host=" + id;
 
         document.getElementById("qrcode").innerHTML = ""; 
@@ -35,18 +33,25 @@ window.onload = function() {
         call.answer(); // Call accept karna
 
         call.on('stream', (remoteStream) => {
-            // Mobile se jo video stream aa rahi hai usko hum kisi bhi khali box me daal denge
             let camNum = getNextAvailableBox();
             if (camNum) {
                 let videoElement = document.getElementById(`cam${camNum}`);
                 videoElement.srcObject = remoteStream;
+                videoElement.play().catch(e => console.log("Autoplay blocked:", e));
                 
                 // Box ka label update karna
                 let labelBox = videoElement.parentElement.querySelector('.cam-label');
                 labelBox.innerText = `Camera ${camNum} (Connected)`;
                 labelBox.style.background = "green";
+                connectedPeersCount++;
+            } else {
+                alert("All 6 camera slots are full!");
             }
         });
+    });
+
+    peer.on('error', (err) => {
+        console.error("Peer error:", err);
     });
 };
 
@@ -68,7 +73,18 @@ function selectCamera(camNumber) {
     
     if (selectedVideo.srcObject) {
         mainOutput.srcObject = selectedVideo.srcObject;
+        mainOutput.play().catch(e => console.log("Autoplay blocked:", e));
     } else {
         alert(`Camera ${camNumber} is offline!`);
+    }
+}
+
+// Live News Headline update karne ke liye function
+function updateHeadline() {
+    let inputText = document.getElementById("headlineInput").value;
+    if (inputText.trim() !== "") {
+        let tickerSpan = document.querySelector(".news-ticker span");
+        tickerSpan.innerText = "⚡ Breaking News: " + inputText + " ";
+        document.getElementById("headlineInput").value = "";
     }
 }
