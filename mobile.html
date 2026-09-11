@@ -80,8 +80,13 @@
         <button onclick="switchCamera()" style="background: #ff4d4d; color: #fff;">Switch Camera</button>
     </div>
 
-   <script>
+  <script>
     let localStream;
+    let peer;
+
+    // URL se computer (host) ki ID nikalna
+    const urlParams = new URLSearchParams(window.location.search);
+    const hostId = urlParams.get('host');
 
     async function startCamera() {
         let camName = document.getElementById("cameraName").value;
@@ -92,38 +97,35 @@
             return;
         }
 
-        // Fallback for non-secure contexts (HTTP over local IP)
-        if (navigator.mediaDevices === undefined) {
-            navigator.mediaDevices = {};
-        }
-
-        if (navigator.mediaDevices.getUserMedia === undefined) {
-            navigator.mediaDevices.getUserMedia = function(constraints) {
-                let getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-                if (!getUserMedia) {
-                    return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
-                }
-                return new Promise(function(resolve, reject) {
-                    getUserMedia.call(navigator, constraints, resolve, reject);
-                });
-            };
-        }
-
         try {
             const constraints = {
                 video: { facingMode: facingMode },
                 audio: false
             };
 
+            // Mobile ka camera start karna
             localStream = await navigator.mediaDevices.getUserMedia(constraints);
-            
             document.getElementById("localVideo").srcObject = localStream;
+            
             document.getElementById("setupScreen").classList.add("hidden");
             document.getElementById("streamScreen").classList.remove("hidden");
             document.getElementById("activeTitle").innerText = camName;
 
+            // PeerJS connection connect karna computer ke sath
+            peer = new Peer();
+
+            peer.on('open', (id) => {
+                if (hostId) {
+                    // Computer ko video stream call lagana
+                    let call = peer.call(hostId, localStream);
+                    console.log("Streaming connected to computer!");
+                } else {
+                    alert("Host ID missing! Please scan QR code again from computer.");
+                }
+            });
+
         } catch (error) {
-            alert("Camera access denied or not supported: " + error.message);
+            alert("Camera error: " + error.message);
             console.error(error);
         }
     }
