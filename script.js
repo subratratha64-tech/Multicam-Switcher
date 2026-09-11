@@ -1,8 +1,13 @@
 window.onload = function() {
-    // Tumhara exact local IP aur Live Server port
-    const localIP = "10.236.169.201:5500";
-
-    let mobileUrl = `http://${localIP}/mobile.html`;
+    // Yeh automatic current GitHub page ka URL detect kar lega
+    let currentUrl = window.location.href;
+    let mobileUrl;
+    
+    if (currentUrl.includes("index.html")) {
+        mobileUrl = currentUrl.replace("index.html", "mobile.html");
+    } else {
+        mobileUrl = currentUrl.endsWith("/") ? currentUrl + "mobile.html" : currentUrl + "/mobile.html";
+    }
 
     // QR code generate karna
     document.getElementById("qrcode").innerHTML = ""; 
